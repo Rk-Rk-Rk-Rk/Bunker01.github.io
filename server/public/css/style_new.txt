@@ -1,0 +1,905 @@
+:root {
+    --primary-color: #ff5722;
+    --secondary-color: #455a64;
+    --background-color: #1a1a1a;
+    --card-color: #292929;
+    --text-color: #e0e0e0;
+    --border-color: #3d3d3d;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1, h2, h3, h4 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.logo {
+    font-size: 5rem;
+    margin: 20px 0;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+input {
+    padding: 12px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: #333;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--secondary-color);
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    flex: 1;
+}
+
+.btn:hover {
+    background-color: #546e7a;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #ff7043;
+}
+
+.btn-secondary {
+    background-color: #607d8b;
+}
+
+.btn-secondary:hover {
+    background-color: #78909c;
+}
+
+.btn-danger {
+    background-color: #f44336;
+}
+
+.btn-danger:hover {
+    background-color: #e53935;
+}
+
+.btn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.hint {
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+}
+
+/* Лобби */
+.game-info {
+    padding: 15px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.game-info p {
+    margin-bottom: 10px;
+}
+
+#game-id-display {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.player-list-container {
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+#player-list {
+    list-style: none;
+}
+
+#player-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#player-list li:last-child {
+    border-bottom: none;
+}
+
+#host-controls {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Игровой экран */
+.game-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .game-header {
+        grid-template-columns: 1fr;
+    }
+}
+
+.round-info, .catastrophe-info, .bunker-info {
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.game-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    .game-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.player-card, .players-info, .voting-section {
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+/* Новый стиль для карточек характеристик - возврат к прежнему дизайну с улучшениями */
+.characteristics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .characteristics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.characteristic-item {
+    position: relative;
+    height: 120px;
+    perspective: 1000px;
+    cursor: default;
+    background-color: #ff5722;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.card-title {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    text-align: center;
+    padding: 6px 0;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.card-content {
+    display: flex;
+    height: calc(100% - 30px - 40px); /* Высота карточки минус заголовок и место для замка */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 500;
+}
+
+/* Исправленная иконка замка */
+.card-lock {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.card-lock:hover {
+    background-color: #388E3C;
+}
+
+.lock-icon {
+    color: white;
+    font-size: 16px;
+}
+
+.characteristic-item.revealed .card-lock {
+    background-color: #2196F3;
+}
+
+.characteristic-item.revealed .lock-icon::before {
+    content: "\f09c"; /* Открытый замок */
+}
+
+/* Отображение имени игрока */
+.player-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.player-header h3 {
+    margin: 0;
+    margin-right: 15px;
+}
+
+.player-name {
+    font-weight: bold;
+    color: #ff5722;
+    font-size: 1.4rem;
+}
+
+/* Список других игроков */
+#other-players-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.other-player-card {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.other-player-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* Стиль для неизвестных характеристик */
+.player-characteristics {
+    margin-top: 10px;
+}
+
+.player-characteristic {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.player-characteristic:last-child {
+    border-bottom: none;
+}
+
+.characteristic-name {
+    font-weight: bold;
+}
+
+.characteristic-value.unknown {
+    color: #999;
+    font-style: italic;
+}
+
+.revealed-characteristics {
+    margin-top: 10px;
+}
+
+.revealed-characteristic {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.revealed-characteristic:last-child {
+    border-bottom: none;
+}
+
+/* Голосование */
+.voting-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.voting-player-card {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 15px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.voting-player-card.selected {
+    border-color: var(--primary-color);
+}
+
+/* Лог событий */
+.game-log {
+    width: 100%;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.log-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.log-message {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.log-message:last-child {
+    border-bottom: none;
+}
+
+/* Перемещенный таймер в центр внизу */
+.timer-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+.timer {
+    font-size: 2.5rem;
+    font-weight: bold;
+    padding: 15px 25px;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Экран результатов */
+.results-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+    .results-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.survivors-section, .eliminated-section {
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 15px;
+}
+
+#survivors-list, #eliminated-list {
+    list-style: none;
+}
+
+#survivors-list li, #eliminated-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#survivors-list li:last-child, #eliminated-list li:last-child {
+    border-bottom: none;
+}
+
+/* Уведомления */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--card-color);
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s, opacity 0.3s;
+    transform: translateY(-100px);
+    opacity: 0;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.notification.error {
+    border-left: 4px solid var(--error-color);
+}
+
+.notification.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.notification.info {
+    border-left: 4px solid var(--info-color);
+}
+
+.notification.warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+/* Стили для отображения отключенных игроков */
+.disconnected {
+    opacity: 0.5;
+}
+
+.disconnected-label {
+    color: #f44336;
+    font-style: italic;
+}
+
+/* Перемещение кнопок управления и выхода */
+.game-control-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.game-control-btn:hover {
+    transform: scale(1.1);
+    background-color: #ff7043;
+}
+
+.game-control-btn i {
+    color: white;
+    font-size: 24px;
+}
+
+.game-exit-btn-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+/* Боковое меню управления */
+.game-control-panel {
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 350px;
+    height: 100%;
+    background-color: #222;
+    z-index: 999;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    transition: right 0.4s ease-in-out;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.game-control-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.panel-header h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.close-panel {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.control-section {
+    margin-bottom: 30px;
+}
+
+.control-section h4 {
+    color: #999;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.panel-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: left;
+}
+
+.panel-btn i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.panel-btn:hover {
+    background-color: #444;
+}
+
+.panel-btn-primary {
+    background-color: var(--primary-color);
+}
+
+.panel-btn-primary:hover {
+    background-color: #ff7043;
+}
+
+/* Маска для затемнения фона при открытом меню */
+.panel-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    display: none;
+}
+
+.panel-backdrop.show {
+    display: block;
+}
+
+/* Селекторы в боковой панели */
+.select-container {
+    margin-bottom: 15px;
+}
+
+.panel-select {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 5px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23fff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 12px) center;
+    padding-right: 30px;
+}
+
+.panel-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Стили для режима разработчика */
+.dev-controls {
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+.dev-code-container {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.code-input-group {
+    margin-bottom: 20px;
+}
+
+.code-list {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.code-list ul {
+    list-style: none;
+}
+
+.code-list li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.code-list code {
+    background-color: #222;
+    padding: 3px 6px;
+    border-radius: 3px;
+    margin-right: 10px;
+    font-family: monospace;
+    color: #4caf50;
+}
+
+/* Бот-контроль */
+.bot-controls {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.bot-list-container {
+    margin-bottom: 20px;
+}
+
+.bot-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#bot-list {
+    list-style: none;
+    margin-bottom: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #333;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#bot-list li {
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+}
+
+#bot-list li:last-child {
+    border-bottom: none;
+}
+
+/* История игр */
+.game-history-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.game-history-item {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.game-history-item h4 {
+    color: var(--primary-color);
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.game-history-details {
+    font-size: 0.9rem;
+}
+
+/* Добавление характеристик */
+.traits-manager {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--card-color);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.traits-categories {
+    margin-bottom: 15px;
+}
+
+.traits-categories select {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+}
+
+.traits-add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.traits-add-form input {
+    flex: 1;
+}
+
+.traits-list-container {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#traits-list {
+    list-style: none;
+}
+
+#traits-list li {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#traits-list li:last-child {
+    border-bottom: none;
+}
+
+.delete-trait-btn {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Специальные возможности */
+.special-abilities {
+    margin-top: 20px;
+    background-color: #2c3e50;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.abilities-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.ability-card {
+    padding: 12px;
+    background-color: #34495e;
+    border-radius: 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.ability-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.ability-content {
+    font-weight: bold;
+}

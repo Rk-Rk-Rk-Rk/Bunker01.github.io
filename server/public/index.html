@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бункер - Игра на выживание</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <!-- Уведомление -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Экран логина -->
+    <div id="login-screen" class="screen">
+        <div class="container">
+            <h1>Бункер</h1>
+            <p class="subtitle">Многопользовательская игра на выживание</p>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username-input">Ваше имя:</label>
+                    <input type="text" id="username-input" placeholder="Введите имя" maxlength="20">
+                </div>
+
+                <div class="buttons-group">
+                    <button id="create-game-btn" class="btn btn-primary">Создать игру</button>
+                    <button id="join-game-btn" class="btn">Присоединиться</button>
+                </div>
+
+                <div id="join-form" class="hidden">
+                    <div class="form-group">
+                        <label for="game-id-input">ID игры:</label>
+                        <input type="text" id="game-id-input" placeholder="Например: ABC123" maxlength="6">
+                    </div>
+                    <button id="confirm-join-btn" class="btn btn-primary">Войти в игру</button>
+                </div>
+                
+                <div class="dev-button-container">
+                    <button id="dev-codes-btn" class="btn btn-small">Режим разработчика</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2025 Бункер | Версия 1.2</p>
+        </footer>
+    </div>
+
+    <!-- Экран режима разработчика -->
+    <div id="dev-screen" class="screen hidden">
+        <div class="container">
+            <h1>Режим разработчика</h1>
+            <div class="dev-form">
+                <div class="form-group">
+                    <label for="dev-code-input">Код режима:</label>
+                    <input type="text" id="dev-code-input" placeholder="Введите код">
+                </div>
+                <div class="buttons-group">
+                    <button id="submit-code-btn" class="btn btn-primary">Применить</button>
+                    <button id="back-from-dev-btn" class="btn">Назад</button>
+                </div>
+            </div>
+            
+            <div class="dev-info">
+                <h3>Доступные коды:</h3>
+                <ul>
+                    <li><code>TESTBOTS</code> - Тестовая игра с ботами</li>
+                    <li><code>BOTCONTROL</code> - Управление ботами</li>
+                    <li><code>GAMEHISTORY</code> - История игр</li>
+                    <li><code>CUSTOMTRAITS</code> - Настройка характеристик</li>
+                    <li><code>SP</code> - Режим наблюдателя (присоединение к игре как зритель)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран лобби -->
+    <div id="lobby-screen" class="screen hidden">
+        <div class="container">
+            <h1>Комната ожидания</h1>
+            
+            <div class="game-info">
+                <div class="game-id-box">
+                    <h3>ID игры: <span id="game-id-display">----</span></h3>
+                    <p>Поделитесь этим кодом с друзьями, чтобы они могли присоединиться</p>
+                </div>
+                
+                <div class="players-box">
+                    <h3>Игроки (<span id="player-count">1</span>)</h3>
+                    <ul id="player-list">
+                        <li>Загрузка списка игроков...</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="host-controls" class="host-controls hidden">
+                <p class="host-tip">Вы хост этой игры. Нажмите кнопку "Начать игру", когда все игроки присоединятся.</p>
+                <button id="start-game-btn" class="btn btn-primary">Начать игру</button>
+            </div>
+            
+            <button id="leave-game-btn" class="btn btn-danger">Выйти из игры</button>
+        </div>
+    </div>
+
+    <!-- Игровой экран -->
+    <div id="game-screen" class="screen hidden">
+        <!-- Уведомление о раскрытии характеристики -->
+        <div id="reveal-notification" class="reveal-notification">
+            <div class="reveal-title"></div>
+            <div class="reveal-content"></div>
+        </div>
+        
+        <div class="game-container">
+            <div class="game-header">
+                <div class="round-info">
+                    <span class="round-label">Раунд:</span>
+                    <span id="current-round" class="round-number">1</span>
+                </div>
+                <div id="timer-container" class="timer-container hidden">
+                    <div class="timer-label">Время:</div>
+                    <div id="timer" class="timer">60</div>
+                </div>
+                <button id="leave-game-btn-in-game" class="btn btn-danger">Выйти из игры</button>
+            </div>
+
+            <!-- Информация о катастрофе и бункере -->
+            <div class="top-info-cards">
+                <div class="catastrophe-card">
+                    <div class="card-header">
+                        <h3>Катастрофа</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4 id="catastrophe-title">Загрузка...</h4>
+                        <p id="catastrophe-description">Описание катастрофы загружается...</p>
+                    </div>
+                </div>
+                
+                <div class="bunker-card">
+                    <div class="card-header">
+                        <h3>Бункер</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="bunker-description">Описание бункера загружается...</p>
+                        <h4>Особенности бункера:</h4>
+                        <ul id="bunker-features">
+                            <li>Загрузка...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-content">
+                <div class="player-info">
+                    <h2 id="player-name">Игрок</h2>
+                    <div class="characteristics-container">
+                        <div class="characteristics-box">
+                            <div class="characteristics-row-container">
+                                <div class="characteristic-item" data-type="profession">
+                                    <div class="card-header">Профессия</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="health">
+                                    <div class="card-header">Здоровье</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="age">
+                                    <div class="card-header">Возраст</div>
+                                    <div class="card-content"></div>
+                                </div>
+                            </div>
+                            <div class="characteristics-row-container">
+                                <div class="characteristic-item" data-type="gender">
+                                    <div class="card-header">Пол</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="hobby">
+                                    <div class="card-header">Хобби</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="phobia">
+                                    <div class="card-header">Фобия</div>
+                                    <div class="card-content"></div>
+                                </div>
+                            </div>
+                            <div class="characteristics-row-container">
+                                <div class="characteristic-item" data-type="baggage">
+                                    <div class="card-header">Багаж</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="fact">
+                                    <div class="card-header">Доп. факт</div>
+                                    <div class="card-content"></div>
+                                </div>
+                                <div class="characteristic-item" data-type="trait">
+                                    <div class="card-header">Черта характера</div>
+                                    <div class="card-content"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="abilities-container"></div>
+                </div>
+                
+                <div class="other-players-container">
+                    <h3>Другие игроки</h3>
+                    <div id="other-players-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Остальные элементы игрового экрана -->
+        <div id="voting-section" class="hidden">
+            <div class="section-header">
+                <h3>Голосование</h3>
+            </div>
+            <div class="voting-content">
+                <p>Выберите, кого исключить из бункера:</p>
+                <div id="voting-players-list" class="voting-players-list">
+                    <!-- Здесь будут игроки для голосования -->
+                </div>
+                <button id="submit-vote-btn" class="vote-btn" disabled>Голосовать</button>
+            </div>
+        </div>
+        
+        <div id="game-control-btn" class="control-btn hidden"></div>
+        <div id="game-control-panel" class="game-control-panel">
+            <div class="panel-header">
+                <h3>Панель управления игрой</h3>
+                <button id="close-panel" class="close-btn">×</button>
+            </div>
+            
+            <div class="panel-content">
+                <div class="panel-section">
+                    <h4>Управление игрой</h4>
+                    <button id="start-voting-btn" class="panel-btn">Начать голосование</button>
+                    <button id="next-round-btn" class="panel-btn">Следующий раунд</button>
+                </div>
+                
+                <div class="panel-section">
+                    <h4>Таймер</h4>
+                    <div class="timer-controls">
+                        <input type="number" id="timer-seconds" min="10" max="300" value="60">
+                        <div class="timer-buttons">
+                            <button id="start-timer-btn" class="panel-btn panel-btn-small">Старт</button>
+                            <button id="pause-timer-btn" class="panel-btn panel-btn-small">Пауза</button>
+                            <button id="stop-timer-btn" class="panel-btn panel-btn-small">Стоп</button>
+                            <button id="set-timer-btn" class="panel-btn panel-btn-small">Установить</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h4>Управление игроками</h4>
+                    <div class="player-management">
+                        <select id="manage-player-select">
+                            <option value="">Выберите игрока</option>
+                        </select>
+                        <div class="player-action-buttons">
+                            <button id="kick-player-btn" class="panel-btn panel-btn-danger">Исключить из бункера</button>
+                            <button id="return-to-bunker-btn" class="panel-btn panel-btn-success">Вернуть в бункер</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h4>Характеристики</h4>
+                    <div class="characteristic-management">
+                        <div class="characteristic-selectors">
+                            <select id="target-player">
+                                <option value="">Выберите игрока</option>
+                            </select>
+                            <select id="target-characteristic">
+                                <option value="">Выберите характеристику</option>
+                                <option value="profession">Профессия</option>
+                                <option value="health">Здоровье</option>
+                                <option value="age">Возраст</option>
+                                <option value="gender">Пол</option>
+                                <option value="hobby">Хобби</option>
+                                <option value="phobia">Фобия</option>
+                                <option value="baggage">Багаж</option>
+                                <option value="fact">Доп. факт</option>
+                                <option value="trait">Черта характера</option>
+                            </select>
+                        </div>
+                        <div class="characteristic-action-buttons">
+                            <button id="random-characteristic-btn" class="panel-btn panel-btn-small">Случайное</button>
+                            <button id="improve-characteristic-btn" class="panel-btn panel-btn-small panel-btn-success">Улучшить</button>
+                            <button id="worsen-characteristic-btn" class="panel-btn panel-btn-small panel-btn-danger">Ухудшить</button>
+                            <button id="set-exact-characteristic-btn" class="panel-btn panel-btn-small">Задать значение</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="panel-backdrop" class="panel-backdrop"></div>
+    </div>
+
+    <!-- Экран результатов -->
+    <div id="results-screen" class="screen hidden">
+        <div class="container">
+            <h1>Игра завершена</h1>
+            
+            <div class="results-container">
+                <div class="survivors-section">
+                    <h2>В бункере остались:</h2>
+                    <ul id="survivors-list">
+                        <!-- Здесь будут выжившие игроки -->
+                    </ul>
+                </div>
+                
+                <div class="eliminated-section">
+                    <h2>Не попали в бункер:</h2>
+                    <ul id="eliminated-list">
+                        <!-- Здесь будут исключенные игроки -->
+                    </ul>
+                </div>
+            </div>
+            
+            <button id="back-to-lobby-btn" class="btn btn-primary">Вернуться в меню</button>
+        </div>
+    </div>
+
+    <!-- Экран наблюдателя -->
+    <div id="observer-screen" class="screen hidden">
+        <div class="observer-container">
+            <div class="observer-header">
+                <h2>Режим наблюдателя</h2>
+                <p>Игра: <span id="observer-game-id">---</span></p>
+                <button id="leave-observer-btn" class="btn btn-danger">Выйти из игры</button>
+            </div>
+            
+            <div class="observer-grid">
+                <div class="catastrophe-card">
+                    <div class="card-header">
+                        <h3>Катастрофа</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4 id="observer-catastrophe-title">Загрузка...</h4>
+                        <p id="observer-catastrophe-description">Описание катастрофы загружается...</p>
+                    </div>
+                </div>
+                
+                <div class="bunker-card">
+                    <div class="card-header">
+                        <h3>Бункер</h3>
+                    </div>
+                    <div class="card-body">
+                        <p id="observer-bunker-description">Описание бункера загружается...</p>
+                        <h4>Особенности бункера:</h4>
+                        <ul id="observer-bunker-features">
+                            <li>Загрузка...</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="players-table-container">
+                    <h3>Игроки и их характеристики</h3>
+                    <table class="players-table" id="players-table">
+                        <thead>
+                            <tr>
+                                <th>Игрок</th>
+                                <th>Пол</th>
+                                <th>Возраст</th>
+                                <th>Профессия</th>
+                                <th>Здоровье</th>
+                                <th>Хобби</th>
+                                <th>Фобия</th>
+                                <th>Багаж</th>
+                                <th>Доп. факт</th>
+                                <th>Черта характера</th>
+                            </tr>
+                        </thead>
+                        <tbody id="observer-players-list">
+                            <!-- Здесь будут игроки и их характеристики -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение скриптов -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/socket.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/game.js"></script>
+
+    <div class="modal-backdrop"></div>
+    
+    <!-- Модальное окно подтверждения действия -->
+    <div class="confirm-action-modal" id="confirm-action-modal">
+        <h3>Подтверждение действия</h3>
+        <p id="confirm-action-text"></p>
+        <div class="confirm-action-buttons">
+            <button class="btn btn-confirm" id="confirm-action-yes">Да</button>
+            <button class="btn btn-cancel" id="confirm-action-no">Нет</button>
+        </div>
+    </div>
+</body>
+</html>
