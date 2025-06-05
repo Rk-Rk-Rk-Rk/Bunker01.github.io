@@ -4,7 +4,8 @@
   "description": "A web-based Bunker game for local network play",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js"
+    "start": "node server/server.js",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "express": "^4.21.2",
